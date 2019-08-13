@@ -1,0 +1,75 @@
+
+.panel {
+position: fixed;
+top: 0;
+left: 0;
+background: rgba( 0, 0, 0, .5 ) ;
+box-shadow: 0 0 .5rem #000;
+height: 100%;
+transition: 500ms;
+  width: .2rem;
+  opacity: 0;
+  overflow: hidden;
+  z-index: 12324242;
+}
+
+.panel:hover {
+width: 30%;
+opacity: 1;
+}
+
+	.panel,
+	.panel * {
+	border: 0;
+	outline: none;
+	font-size: 16px;
+	box-sizing: border-box;
+	color: #ddd;
+	};
+
+	.panel h2,
+	.panel h3,
+	.panel p {
+	margin: .5rem;
+	}
+	.panel hr {
+	border: .1rem solid #ddd;
+	margin: .5rem 0;
+	}
+
+	.panel input,
+	.panel textarea,
+	.panel button {
+	display: block;
+	width: 100%;
+	background: rgba( 0, 0, 0, .5 );
+	padding: 1rem;
+	margin: .5rem 0;
+	transition: 500ms;
+	}
+
+	.panel input:hover,
+	.panel textarea:hover,
+	.panel button:hover {
+	background: rgba( 0, 0, 0, .8 );
+	}
+
+		.note-list {
+		max-height: 20rem;
+		overflow-y: auto;
+		}
+
+		.note {
+		display: flex;
+		background: rgba( 0, 0, 0, .5 );
+		padding: .5rem;
+		margin: .5rem 0
+		}
+
+		.note__buttons {
+		margin: 0 0 0 auto;
+		}
+
+		.note__buttons button {
+		height: 100%;
+		}';

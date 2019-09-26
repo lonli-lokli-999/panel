@@ -218,7 +218,7 @@ function getPageInBox(page_url, select ) {
 
 function watcher()
 {
-	villages_maneger.reload()		
+	villages_maneger.reload()	
 };
 
 /* run 

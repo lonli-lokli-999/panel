@@ -154,7 +154,7 @@ var bookmarks =
 	{
 		let 
 			b_bookmarks = document.createElement( 'div' ),
-			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a>`;
+			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a><a href="${ url_map.recruitmentPage }">Набор рекрутов</a>`;
 
 		b_bookmarks.classList.add( 'bookmarks' );
 		b_bookmarks.innerHTML = bookmarks_html;
@@ -196,6 +196,12 @@ const url_map =
 	{
 		let host = this.location;
 		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=place`
+	},
+
+	get recruitmentPage()
+	{
+		let host = this.location;
+		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=train`
 	}
 };
 

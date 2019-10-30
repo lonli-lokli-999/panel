@@ -213,6 +213,33 @@ const url_map =
 	}
 };
 
+const keyboard = {
+	event( ev ){
+		if( document.activeElement.tagName == 'INPUT' ) return;
+
+		let key = ev.key;
+		key == 'd' ?
+			( keyboard.villageNext() ) :
+		key == 'a' ?
+			( keyboard.villagePrevious() ) :
+		( false );
+	},
+	villageNext()
+	{
+		let village = document.querySelector( '.village--active' ),
+			village_next = village.nextElementSibling,
+			village_next_url = village_next.querySelector( 'a' ).href;
+		location.href = village_next_url;
+	},
+
+	villagePrevious()
+	{
+		let village = document.querySelector( '.village--active' ),
+			village_previous = village.previousElementSibling,
+			village_previous_url = village_previous.querySelector( 'a' ).href;
+		location.href = village_previous_url;
+	}
+};
 /* function
 =========================== */
 function requestSync( url )
@@ -249,6 +276,8 @@ const wathc = {
 			.add( bookmarks.render() )
 			.add( villages_maneger.render() )		
 		;
+
+		document.addEventListener( 'keydown', keyboard.event )
 } ( null ));
 
 

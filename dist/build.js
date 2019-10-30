@@ -23,13 +23,15 @@ var panel =
 			}
 		} );
 
-
 		return this;
 	},
 
 	switched()
 	{
-		this.panel_wrap.classList.toggle( 'panel-wrap--active' )
+		let panel = this.panel_wrap;
+		!panel.classList.contains( 'panel-wrap--active' ) ? 
+			( wathc.start(), panel.classList.add( 'panel-wrap--active' ) ) :
+			( wathc.stop(), panel.classList.remove( 'panel-wrap--active' ) ); 
 	},
 
 	add( aplet ) 
@@ -62,7 +64,7 @@ var villages_maneger =
 	{
 		let
 			b_villages = document.querySelector( '.b-panel .villages' ),
-			b_villages_new =  this.render();
+			b_villages_new =  villages_maneger.render();
 
 			b_villages.innerHTML = b_villages_new.innerHTML;
 	},
@@ -70,7 +72,7 @@ var villages_maneger =
 	villages_list_render( villages )
 	{
 		return villages
-			.map( village => `<div class="village" ><a href="${ village.href }">${ village.label }</a><div>Дерево: ${ village.wood }; Глина:${ village.stone }; Сталь:${ village.iron }</div><div class="village__builds"> ${ builds.getBuildsInfo(village.id) } </div</div>` )
+			.map( village => `<div class="village ${ village.id == url_map.idCurrentVillage ? 'village--active' : ''}" ><a href="${ village.href }">${ village.label }</a><div>Дерево: ${ village.wood }; Глина:${ village.stone }; Сталь:${ village.iron }</div><div class="village__builds"> ${ builds.getBuildsInfo(village.id) } </div></div>` )
 				.join( '' );
 	},
 
@@ -154,7 +156,7 @@ var bookmarks =
 	{
 		let 
 			b_bookmarks = document.createElement( 'div' ),
-			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a><a href="${ url_map.recruitmentPage }">Набор рекрутов</a>`;
+			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a><a href="${ url_map.recruitmentPage }">Набор рекрутов</a><a href="${ url_map.gatheringPage }">Сбор ресурсов</a>`;
 
 		b_bookmarks.classList.add( 'bookmarks' );
 		b_bookmarks.innerHTML = bookmarks_html;
@@ -180,7 +182,7 @@ const url_map =
 	
 	get idCurrentVillage()
 	{
-		let host = this.location,
+		let host = this.location.search,
 		search_obj = new URLSearchParams( host );
 
 		return search_obj.get( 'village' )
@@ -202,6 +204,12 @@ const url_map =
 	{
 		let host = this.location;
 		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=train`
+	},
+	
+	get gatheringPage()
+	{
+		let host = this.location;
+		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=place&mode=scavenge`
 	}
 };
 
@@ -222,9 +230,15 @@ function getPageInBox(page_url, select ) {
 	return select ? resBox.querySelector( select ) : resBox;
 };
 
-function watcher()
-{
-	villages_maneger.reload()	
+const wathc = {
+	start()
+	{
+		this.wathcer = setInterval( villages_maneger.reload, 2000 );
+	},
+	stop()
+	{
+		clearInterval( this.wathcer	)
+	}
 };
 
 /* run 
@@ -234,10 +248,8 @@ function watcher()
 		panel.render()
 			.add( bookmarks.render() )
 			.add( villages_maneger.render() )		
-		; 
-
-		setInterval( watcher, 3000 )
+		;
 } ( null ));
 
 
-(function(){let styles = document.createElement( 'style' );styles.innerHTML = ':root {--main-bg: #fff;--main-color: #999;--dbl-bg: #eee;--dbl-color: #977;}.panel-wrap {position: fixed;top: 0;left: 0;background: var( --main-bg );box-shadow: 0 0 .5rem var( --main-color );height: 100%;transition: 500ms;  width: .2rem;  opacity: 0; overflow-x: hidden;overflow-y: auto;  z-index: 12324242;}.panel-wrap:hover,.panel-wrap--active {width: 30rem;opacity: 1;}.b-panel,.b-panel * {border: 0;padding: 0;margin:0;outline: none;font-size: 16px;box-sizing: border-box;color: var( --main-color );}.b-panel h2,.b-panel h3,.b-panel p {  padding: .5rem 1rem;}.b-panel hr {border: .1rem solid var( --main-color );margin: .5rem 0;}.b-panel input,.b-panel textarea,.b-panel button {display: block;width: 100%;background: var( --main-bg );padding: 1rem;margin: .5rem 0;transition: 500ms;}.b-panel input:hover,.b-panel textarea:hover,.b-panel button:hover {background: var( --dbl-bg );}.b-panel a {font-style: italic;transition: 500ms;text-decoration: none;}.b-panel a:hover {color: var( --main-color )}.villages-list {margin: .5rem 0;}.villages-list .village {padding: .5rem;}.villages-list .village:nth-child(even) {background: var( --dbl-bg );}.village__builds span {display: block;padding: .2rem 0;}.bookmarks {padding: .5rem 0;}.bookmarks a {display: inline-block;padding: .5rem;}.bookmarks a:hover {background: var( --dbl-bg );}';document.head.appendChild( styles )}(null))
+(function(){let styles = document.createElement( 'style' );styles.innerHTML = ':root {--main-bg: #fff;--main-color: #999;--dbl-bg: #eee;--dbl-color: #977;}.panel-wrap {position: fixed;top: 0;left: 0;background: var( --main-bg );box-shadow: 0 0 .5rem var( --main-color );height: 100%;transition: 500ms;  width: .2rem;  opacity: 0; overflow-x: hidden;overflow-y: auto;  z-index: 12324242;}.panel-wrap:hover,.panel-wrap--active {width: 30rem;opacity: 1;}.b-panel,.b-panel * {border: 0;padding: 0;margin:0;outline: none;font-size: 16px;box-sizing: border-box;color: var( --main-color );}.b-panel h2,.b-panel h3,.b-panel p {  padding: .5rem 1rem;}.b-panel hr {border: .1rem solid var( --main-color );margin: .5rem 0;}.b-panel input,.b-panel textarea,.b-panel button {display: block;width: 100%;background: var( --main-bg );padding: 1rem;margin: .5rem 0;transition: 500ms;}.b-panel input:hover,.b-panel textarea:hover,.b-panel button:hover {background: var( --dbl-bg );}.b-panel a {font-style: italic;transition: 500ms;text-decoration: none;}.b-panel a:hover {color: var( --main-color )}.villages-list {margin: .5rem 0;}.villages-list .village {padding: .5rem;}.villages-list .village--active {border-left: .2rem solid #999;}.villages-list .village:nth-child(even) {background: var( --dbl-bg );}.village__builds span {display: block;padding: .2rem 0;}.bookmarks {padding: .5rem 0;}.bookmarks a {display: inline-block;padding: .5rem;}.bookmarks a:hover {background: var( --dbl-bg );}';document.head.appendChild( styles )}(null))

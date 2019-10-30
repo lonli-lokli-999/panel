@@ -23,13 +23,15 @@ var panel =
 			}
 		} );
 
-
 		return this;
 	},
 
 	switched()
 	{
-		this.panel_wrap.classList.toggle( 'panel-wrap--active' )
+		let panel = this.panel_wrap;
+		!panel.classList.contains( 'panel-wrap--active' ) ? 
+			( wathc.start(), panel.classList.add( 'panel-wrap--active' ) ) :
+			( wathc.stop(), panel.classList.remove( 'panel-wrap--active' ) ); 
 	},
 
 	add( aplet ) 
@@ -62,7 +64,7 @@ var villages_maneger =
 	{
 		let
 			b_villages = document.querySelector( '.b-panel .villages' ),
-			b_villages_new =  this.render();
+			b_villages_new =  villages_maneger.render();
 
 			b_villages.innerHTML = b_villages_new.innerHTML;
 	},
@@ -70,7 +72,7 @@ var villages_maneger =
 	villages_list_render( villages )
 	{
 		return villages
-			.map( village => `<div class="village" ><a href="${ village.href }">${ village.label }</a><div>Дерево: ${ village.wood }; Глина:${ village.stone }; Сталь:${ village.iron }</div><div class="village__builds"> ${ builds.getBuildsInfo(village.id) } </div</div>` )
+			.map( village => `<div class="village ${ village.id == url_map.idCurrentVillage ? 'village--active' : ''}" ><a href="${ village.href }">${ village.label }</a><div>Дерево: ${ village.wood }; Глина:${ village.stone }; Сталь:${ village.iron }</div><div class="village__builds"> ${ builds.getBuildsInfo(village.id) } </div></div>` )
 				.join( '' );
 	},
 
@@ -154,7 +156,7 @@ var bookmarks =
 	{
 		let 
 			b_bookmarks = document.createElement( 'div' ),
-			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a><a href="${ url_map.recruitmentPage }">Набор рекрутов</a>`;
+			bookmarks_html = `<a href="${ url_map.areaPage }">Площадь</a><a href="${ url_map.villageBuilds() }">Ратуша</a><a href="${ url_map.recruitmentPage }">Набор рекрутов</a><a href="${ url_map.gatheringPage }">Сбор ресурсов</a>`;
 
 		b_bookmarks.classList.add( 'bookmarks' );
 		b_bookmarks.innerHTML = bookmarks_html;
@@ -180,7 +182,7 @@ const url_map =
 	
 	get idCurrentVillage()
 	{
-		let host = this.location,
+		let host = this.location.search,
 		search_obj = new URLSearchParams( host );
 
 		return search_obj.get( 'village' )
@@ -202,6 +204,12 @@ const url_map =
 	{
 		let host = this.location;
 		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=train`
+	},
+	
+	get gatheringPage()
+	{
+		let host = this.location;
+		return `${ host.origin }${ host.pathname }?village=${ this.idCurrentVillage }&screen=place&mode=scavenge`
 	}
 };
 
@@ -222,9 +230,15 @@ function getPageInBox(page_url, select ) {
 	return select ? resBox.querySelector( select ) : resBox;
 };
 
-function watcher()
-{
-	villages_maneger.reload()	
+const wathc = {
+	start()
+	{
+		this.wathcer = setInterval( villages_maneger.reload, 2000 );
+	},
+	stop()
+	{
+		clearInterval( this.wathcer	)
+	}
 };
 
 /* run 
@@ -234,9 +248,7 @@ function watcher()
 		panel.render()
 			.add( bookmarks.render() )
 			.add( villages_maneger.render() )		
-		; 
-
-		setInterval( watcher, 3000 )
+		;
 } ( null ));
 
 

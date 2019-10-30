@@ -84,6 +84,10 @@ opacity: 1;
 				padding: .5rem;			
 				}
 
+				.villages-list .village--active {
+				border-left: .2rem solid #999;
+				}
+
 				.villages-list .village:nth-child(even) {
 				background: var( --dbl-bg );
 				}

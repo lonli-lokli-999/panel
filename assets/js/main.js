@@ -301,7 +301,7 @@ const storage =
 	}
 };
 
-/* keyboard function
+/* keyboards function
 ===========================*/
 const keyboard = {
 	event( ev ){

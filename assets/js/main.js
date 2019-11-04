@@ -213,6 +213,96 @@ const url_map =
 	}
 };
 
+/* atack maneger
+===========================*/
+
+const templ = 
+{
+	generateTemplBox()
+	{
+		let templBox = document.createElement( 'div' ),
+			list = storage.get( 'templ' );
+
+		list.forEach( function( el ) {
+			let btn = document.createElement( 'button' );
+				btn.setAttribute( 'data-units', JSON.stringify( el.units ) );
+				btn.addEventListener( 'click', templ.use );
+				btn.innerHTML = el.name;
+
+			templBox.appendChild( btn )
+		} );
+
+		return templBox;
+	},
+
+	generateTemplContext(){
+		let templContext = document.createElement( 'div' );
+			templContext.innerHTML = '<button class="add-templ">Добавить шаблон</button><input type="text" name="templ-name" placeholder="Введите имя нового шаблона">';
+			templContext.appendChild( templ.generateTemplBox() );
+		
+		templContext.querySelector( '.add-templ' )
+			.addEventListener( 'click', () => ( templ.add() ) );
+
+		return templContext
+	},
+
+	use()
+	{
+		let units = JSON.parse( this.getAttribute( 'data-units' ) );
+
+			Object.keys(units)
+				.forEach( function(key) {
+					document.querySelector( `input[name="${key}"]` ).value = units[key]
+				} );
+	
+		removeContext()
+	},
+	
+	add( tmp )
+	{
+		let list = storage.get( 'templ' ),
+			templName = document.querySelector( 'input[name="templ-name"]' ).value || 'Без имени',
+			newTempl = {name: templName, units: {} };
+
+		document.querySelectorAll( 'input[id*="unit_input"]' )
+			.forEach( function( unit ) {
+				let 
+					name_unit = unit.name,
+					amount_units = unit.value;
+
+				if( amount_units ) newTempl.units[name_unit] = amount_units;	
+			} );
+		
+		list.push( newTempl )
+		storage.set( 'templ', list )
+
+		removeContext()
+	}	
+};
+
+/* Storage maneger
+===========================*/
+
+const storage =
+{
+	get( name )
+	{
+		if( !localStorage.getItem( name ) ) {
+			storage.set( name, [] );
+			return []
+		};
+
+		return JSON.parse( localStorage.getItem( name ) );
+	},
+
+	set( name, val )
+	{
+		localStorage.setItem( name, JSON.stringify( val ) )
+	}
+};
+
+/* keyboard function
+===========================*/
 const keyboard = {
 	event( ev ){
 		if( document.activeElement.tagName == 'INPUT' ) return;
@@ -240,6 +330,7 @@ const keyboard = {
 		location.href = village_previous_url;
 	}
 };
+
 /* function
 =========================== */
 function requestSync( url )
@@ -268,6 +359,30 @@ const wathc = {
 	}
 };
 
+function newContext( content, x, y )
+{
+	let
+		b_context = document.createElement( 'div' );
+		b_context.classList.add( 'b-context' );
+		b_context.style.cssText = `top: ${y}px; left: ${x}px`;
+
+		b_context.appendChild( content );
+		document.body.appendChild( b_context )
+};
+
+function resetContext( content )
+{
+	let
+		b_context = document.createElement( '.b-context' );
+
+	b_context.innerHTML = '';
+	b_context.appendChild( content );
+};
+
+function removeContext(){
+	document.querySelector( '.b-context' ).remove()
+};
+
 /* run 
 =========================== */
 
@@ -278,6 +393,14 @@ const wathc = {
 		;
 
 		document.addEventListener( 'keydown', keyboard.event )
+
+		if( document.querySelector('#command-data-form') ){
+				document.querySelector('#command-data-form')
+					.addEventListener( 'contextmenu', function(ev) {
+						ev.preventDefault();
+						newContext( templ.generateTemplContext(), ev.pageX, ev.pageY )		
+					} );
+		};
 } ( null ));
 
 

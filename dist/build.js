@@ -213,6 +213,96 @@ const url_map =
 	}
 };
 
+/* atack maneger
+===========================*/
+
+const templ = 
+{
+	generateTemplBox()
+	{
+		let templBox = document.createElement( 'div' ),
+			list = storage.get( 'templ' );
+
+		list.forEach( function( el ) {
+			let btn = document.createElement( 'button' );
+				btn.setAttribute( 'data-units', JSON.stringify( el.units ) );
+				btn.addEventListener( 'click', templ.use );
+				btn.innerHTML = el.name;
+
+			templBox.appendChild( btn )
+		} );
+
+		return templBox;
+	},
+
+	generateTemplContext(){
+		let templContext = document.createElement( 'div' );
+			templContext.innerHTML = '<button class="add-templ">Добавить шаблон</button><input type="text" name="templ-name" placeholder="Введите имя нового шаблона">';
+			templContext.appendChild( templ.generateTemplBox() );
+		
+		templContext.querySelector( '.add-templ' )
+			.addEventListener( 'click', () => ( templ.add() ) );
+
+		return templContext
+	},
+
+	use()
+	{
+		let units = JSON.parse( this.getAttribute( 'data-units' ) );
+
+			Object.keys(units)
+				.forEach( function(key) {
+					document.querySelector( `input[name="${key}"]` ).value = units[key]
+				} );
+	
+		removeContext()
+	},
+	
+	add( tmp )
+	{
+		let list = storage.get( 'templ' ),
+			templName = document.querySelector( 'input[name="templ-name"]' ).value || 'Без имени',
+			newTempl = {name: templName, units: {} };
+
+		document.querySelectorAll( 'input[id*="unit_input"]' )
+			.forEach( function( unit ) {
+				let 
+					name_unit = unit.name,
+					amount_units = unit.value;
+
+				if( amount_units ) newTempl.units[name_unit] = amount_units;	
+			} );
+		
+		list.push( newTempl )
+		storage.set( 'templ', list )
+
+		removeContext()
+	}	
+};
+
+/* Storage maneger
+===========================*/
+
+const storage =
+{
+	get( name )
+	{
+		if( !localStorage.getItem( name ) ) {
+			storage.set( name, [] );
+			return []
+		};
+
+		return JSON.parse( localStorage.getItem( name ) );
+	},
+
+	set( name, val )
+	{
+		localStorage.setItem( name, JSON.stringify( val ) )
+	}
+};
+
+/* keyboard function
+===========================*/
 const keyboard = {
 	event( ev ){
 		if( document.activeElement.tagName == 'INPUT' ) return;
@@ -240,6 +330,7 @@ const keyboard = {
 		location.href = village_previous_url;
 	}
 };
+
 /* function
 =========================== */
 function requestSync( url )
@@ -268,6 +359,30 @@ const wathc = {
 	}
 };
 
+function newContext( content, x, y )
+{
+	let
+		b_context = document.createElement( 'div' );
+		b_context.classList.add( 'b-context' );
+		b_context.style.cssText = `top: ${y}px; left: ${x}px`;
+
+		b_context.appendChild( content );
+		document.body.appendChild( b_context )
+};
+
+function resetContext( content )
+{
+	let
+		b_context = document.createElement( '.b-context' );
+
+	b_context.innerHTML = '';
+	b_context.appendChild( content );
+};
+
+function removeContext(){
+	document.querySelector( '.b-context' ).remove()
+};
+
 /* run 
 =========================== */
 
@@ -278,7 +393,15 @@ const wathc = {
 		;
 
 		document.addEventListener( 'keydown', keyboard.event )
+
+		if( document.querySelector('#command-data-form') ){
+				document.querySelector('#command-data-form')
+					.addEventListener( 'contextmenu', function(ev) {
+						ev.preventDefault();
+						newContext( templ.generateTemplContext(), ev.pageX, ev.pageY )		
+					} );
+		};
 } ( null ));
 
 
-(function(){let styles = document.createElement( 'style' );styles.innerHTML = ':root {--main-bg: #fff;--main-color: #999;--dbl-bg: #eee;--dbl-color: #977;}.panel-wrap {position: fixed;top: 0;left: 0;background: var( --main-bg );box-shadow: 0 0 .5rem var( --main-color );height: 100%;transition: 500ms;  width: .2rem;  opacity: 0; overflow-x: hidden;overflow-y: auto;  z-index: 12324242;}.panel-wrap:hover,.panel-wrap--active {width: 30rem;opacity: 1;}.b-panel,.b-panel * {border: 0;padding: 0;margin:0;outline: none;font-size: 16px;box-sizing: border-box;color: var( --main-color );}.b-panel h2,.b-panel h3,.b-panel p {  padding: .5rem 1rem;}.b-panel hr {border: .1rem solid var( --main-color );margin: .5rem 0;}.b-panel input,.b-panel textarea,.b-panel button {display: block;width: 100%;background: var( --main-bg );padding: 1rem;margin: .5rem 0;transition: 500ms;}.b-panel input:hover,.b-panel textarea:hover,.b-panel button:hover {background: var( --dbl-bg );}.b-panel a {font-style: italic;transition: 500ms;text-decoration: none;}.b-panel a:hover {color: var( --main-color )}.villages-list {margin: .5rem 0;}.villages-list .village {padding: .5rem;}.villages-list .village--active {border-left: .2rem solid #999;}.villages-list .village:nth-child(even) {background: var( --dbl-bg );}.village__builds span {display: block;padding: .2rem 0;}.bookmarks {padding: .5rem 0;}.bookmarks a {display: inline-block;padding: .5rem;}.bookmarks a:hover {background: var( --dbl-bg );}';document.head.appendChild( styles )}(null))
+(function(){let styles = document.createElement( 'style' );styles.innerHTML = ':root {--main-bg: #fff;--main-color: #999;--dbl-bg: #eee;--dbl-color: #977;}.panel-wrap {position: fixed;top: 0;left: 0;background: var( --main-bg );box-shadow: 0 0 .5rem var( --main-color );height: 100%;transition: 500ms;  width: .2rem;  opacity: 0; overflow-x: hidden;overflow-y: auto;  z-index: 12324242;}.panel-wrap:hover,.panel-wrap--active {width: 30rem;opacity: 1;}.b-panel,.b-panel *,.b-context * {border: 0;padding: 0;margin:0;outline: none;font-size: 16px;box-sizing: border-box;color: var( --main-color );font-family: Verdana;}.b-panel h2,.b-panel h3,.b-panel p {  padding: .5rem 1rem;}.b-panel hr {border: .1rem solid var( --main-color );margin: .5rem 0;}.b-panel input,.b-panel textarea,.b-panel button {display: block;width: 100%;background: var( --main-bg );padding: 1rem;margin: .5rem 0;transition: 500ms;}.b-panel input:hover,.b-panel textarea:hover,.b-panel button:hover {background: var( --dbl-bg );}.b-panel a {font-style: italic;transition: 500ms;text-decoration: none;}.b-panel a:hover {color: var( --main-color )}.villages-list {margin: .5rem 0;}.villages-list .village {padding: .5rem;}.villages-list .village--active {border-left: .2rem solid #999;}.villages-list .village:nth-child(even) {background: var( --dbl-bg );}.village__builds span {display: block;padding: .2rem 0;}.bookmarks {padding: .5rem 0;}.bookmarks a {display: inline-block;padding: .5rem;}.bookmarks a:hover {background: var( --dbl-bg );}.b-context {position: absolute;background: rgba( 250, 250, 250, .7 );color: #333;}.b-context button,.b-context input {background: rgba( 250, 250, 250, .7 );color: #999;text-align: left;padding: .3rem 1rem;border: 0;width: 100%;transition: 500ms;}.b-context button:hover,.b-context input:hover {background: #fff;}';document.head.appendChild( styles )}(null))
